@@ -3,7 +3,7 @@ $__content__ = '';
 
 function echo_content($content) {
 global $__password__;
-list($nameff, $namefr) = namef();
+ 
 
 echo $content;
 }
@@ -31,8 +31,7 @@ echo_content($content);
 return strlen($content);
 }
  
-function post($method, $url, $body) {
-
+function post($method, $url, $header_array, $body) {
 $curl_opt = array();
 $ch = curl_init();
 $curl_opt[CURLOPT_URL] = $url;
@@ -79,4 +78,5 @@ echo_content($GLOBALS['__content__']);
 } 
 }
 $body = '';
-post("GET", "https://google.com/", $body);
+$head = array();
+post("GET", "https://google.com/", $head, $body);

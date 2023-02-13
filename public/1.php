@@ -20,7 +20,7 @@
 
         // $output contains the output string
 
-        $output = curl_exec($ch);
+       echo $output = curl_exec($ch);
 
 
 

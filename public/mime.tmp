@@ -1,0 +1,14 @@
+zip||application/x-zip-compressed
+gz||application/x-gzip
+7z||application/octet-stream
+exe||application/x-msdownload
+gif||image/gif
+jpg||image/jpeg
+html||text/html
+txt||text/plain
+js||application/x-javascript
+css||text/css
+doc||application/msword
+mp3||audio/mpeg
+mpeg||video/mpeg
+pdf||application/pdf

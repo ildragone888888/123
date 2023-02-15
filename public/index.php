@@ -118,9 +118,9 @@ function post() {
     
 
     
-    //if (isset($headers['Connection'])) { ВОБЩЕ ХЗ
-    //    $headers['Connection'] = 'close'; 
-    //}
+   if (isset($headers['Connection'])) { 
+        $headers['Connection'] = 'close'; 
+    }
 
     
     

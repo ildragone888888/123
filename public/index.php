@@ -118,8 +118,8 @@ function post() {
     
 
     
-   if (isset($headers['Connection'])) { 
-        $headers['Connection'] = 'close'; 
+   if (isset($header_array['Connection'])) { 
+        $header_array['Connection'] = 'close'; 
     }
 
     

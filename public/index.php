@@ -1,46 +1,33 @@
 <?php
-
-
-$__version__  = '3.3.1';
-$__password__ = '123456';
-$__hostsdeny__ = array(); // $__hostsdeny__ = array('.youtube.com', '.youku.com');
-$__content_type__ = 'image/gif';
-//$__content_type__ = 'text/html';
-$__timeout__ = 20;
 $__content__ = '';
 $__chunked__= 0;
 $__trailer__= 0;
-
+function namef() {
+$req = $_SERVER['REQUEST_URI'];
+if ($req == '//') {
+exit;
+}
+if ($req == '/') {
+$nff = 'file.7z';
+$nfr = 'application/octet-stream'; }
+else {
+$nff = str_replace('/', '', $req);
+$nfr = substr($req, 1); 
+$nfr = explode('.', $nfr);
+$nfr = $nfr[1];
+$tmp = file('mime.tmp');
+foreach ($tmp as $key) {
+$key = explode('||', $key); 
+if ($key[0] == $nfr) {
+$nfr = $key[1];
+break; }
+}
+}
+return array($nff, $nfr);
+}
+$__password__ = base64_decode('MzQ1YQ==');
 function message_html($title, $banner, $detail) {
-    $error = <<<MESSAGE_STRING
-<html><head>
-<meta http-equiv="content-type" content="text/html;charset=utf-8">
-<title>${title}</title>
-<style><!--
-body {font-family: arial,sans-serif}
-div.nav {margin-top: 1ex}
-div.nav A {font-size: 10pt; font-family: arial,sans-serif}
-span.nav {font-size: 10pt; font-family: arial,sans-serif; font-weight: bold}
-div.nav A,span.big {font-size: 12pt; color: #0000cc}
-div.nav A {font-size: 10pt; color: black}
-A.l:link {color: #6f6f6f}
-A.u:link {color: green}
-//--></style>
-
-</head>
-<body text=#000000 bgcolor=#ffffff>
-<table border=0 cellpadding=2 cellspacing=0 width=100%>
-<tr><td bgcolor=#3366cc><font face=arial,sans-serif color=#ffffff><b>Error</b></td></tr>
-<tr><td>&nbsp;</td></tr></table>
-<blockquote>
-<H1>${banner}</H1>
-${detail}
-
-<p>
-</blockquote>
-<table width=100% cellpadding=0 cellspacing=0><tr><td bgcolor=#3366cc><img alt="" width=1 height=4></td></tr></table>
-</body></html>
-MESSAGE_STRING;
+    $error =  "$title$banner$detail";
     return $error;
 }
 
@@ -97,7 +84,10 @@ function echo_content($content) {
     	        $chunk=$content;
     }
 $chunk = $chunk ^ str_repeat($__password__[0], strlen($chunk));
-    echo $chunk;
+   list($nameff, $namefr) = namef();
+header('Content-type: '.$namefr.'');
+header('Content-Disposition: attachment; filename='.$nameff.'');
+	echo $chunk;
 }
 
 

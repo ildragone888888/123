@@ -142,38 +142,41 @@ function post() {
     }
 
     $curl_opt = array();
-    switch (strtoupper($method)) {
-case 'GET':
-break;
-case 'HEAD':
-$curl_opt[CURLOPT_NOBODY] = true;
-break;
-case 'OPTIONS':
-case 'TRACE':
-$curl_opt[CURLOPT_CUSTOMREQUEST] = $method;
-break;
-case 'POST':
-case 'PATCH':
-case 'PUT':
-case 'DELETE':
-$curl_opt[CURLOPT_CUSTOMREQUEST] = $method;
-if ($body) {
-$curl_opt[CURLOPT_POSTFIELDS] = $body;
-}
-break;
-default:
-echo_content("HTTP/1.0 502\r\n\r\n" . message_html('502 Urlfetch Error', 'Invalid Method: ' . $method,  $url));
- exit(-1);
-}
+   switch (strtoupper($method)) {
+        case 'HEAD':
+            $curl_opt[CURLOPT_NOBODY] = true;
+            break;
+        case 'GET':
+            break;
+        case 'POST':
+            $curl_opt[CURLOPT_POST] = true;
+            $curl_opt[CURLOPT_POSTFIELDS] = $body;
+            break;
+        case 'PUT':
+        case 'DELETE':
+        case 'OPTIONS':
+        case 'PATCH':
+            $curl_opt[CURLOPT_CUSTOMREQUEST] = $method;
+            $curl_opt[CURLOPT_POSTFIELDS] = $body;
+            break;
+        default:
+            header('Content-Type: ' . $__content_type__);
+            echo_content("HTTP/1.0 502\r\n\r\n" . message_html('502 Urlfetch Error', 'Invalid Method: ' . $method,  $url));
+            exit(-1);
+    }
 
     $curl_opt[CURLOPT_HTTPHEADER] = $header_array;
+	 $curl_opt[CURLOPT_BINARYTRANSFER] = true;
     $curl_opt[CURLOPT_RETURNTRANSFER] = true;
     $curl_opt[CURLOPT_HEADER]         = false;
     $curl_opt[CURLOPT_HEADERFUNCTION] = 'curl_header_function';
     $curl_opt[CURLOPT_WRITEFUNCTION]  = 'curl_write_function';
 $curl_opt[CURLOPT_CONNECTTIMEOUT] = 10;
 $curl_opt[CURLOPT_TIMEOUT] = 19;
- 
+ $curl_opt[CURLOPT_FAILONERROR]    = false;
+    $curl_opt[CURLOPT_FOLLOWLOCATION] = false;
+	  $curl_opt[CURLOPT_SSL_VERIFYPEER] = false;
+    $curl_opt[CURLOPT_SSL_VERIFYHOST] = false;
     $ch = curl_init($url);
     curl_setopt_array($ch, $curl_opt);
     $ret = curl_exec($ch);

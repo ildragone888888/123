@@ -59,8 +59,8 @@ $header_array[] = join('-', array_map('ucfirst', explode('-', $key))).': '.$valu
 }
 $body = substr($data, 2+intval($headers_length));
             if ($body) {
- //$body  = $body ^ str_repeat($__password__, strlen($body));
-            $body = gzinflate($body);
+ 
+             
             $headers['Content-Length'] = strval(strlen($body));
              }
         

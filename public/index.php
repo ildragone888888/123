@@ -85,21 +85,17 @@ header('Content-Disposition: attachment; filename='.$nameff.'');
 
 
 function curl_header_function($ch, $header) {
-    global $__content__, $__content_type__,$__chunked__;
+    global $__content__, $__chunked__;
     $pos = strpos($header, ':');
     if ($pos == false) {
         $__content__ .= $header;
     } else {
         $key = join('-', array_map('ucfirst', explode('-', substr($header, 0, $pos))));
-         
             $__content__ .= $key . substr($header, $pos);
-     
     }
-    if (preg_match('@^Content-Type: ?(audio/|image/|video/|application/octet-stream)@i', $header)) {
-        $__content_type__ = 'image/x-png';
-    }
+    
     if (!trim($header)) {
-        header('Content-Type: ' . $__content_type__);
+   
     }
     if (preg_match('@^Transfer-Encoding: ?(chunked)@i', $header)) {
         $__chunked__ = 1;
@@ -120,11 +116,11 @@ function curl_write_function($ch, $content) {
 }
 
 function post() {
-    global $__content_type__;
+    global $__content_type__, $__password__';
     list($method, $url, $headers, $kwargs, $body) = @decode_request(@file_get_contents('php://input'));
-
     $password = $GLOBALS['__password__'];
-    if ($password) {
+   
+	if ($password) {
         if (!isset($kwargs['password']) || $password != $kwargs['password']) {
             header("HTTP/1.0 403 Forbidden");
             echo message_html('403 Forbidden', 'Error Password', "please confirm your password.");

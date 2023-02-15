@@ -116,7 +116,7 @@ function curl_write_function($ch, $content) {
 }
 
 function post() {
-    global $__content_type__, $__password__';
+    global $__password__;
     list($method, $url, $headers, $kwargs, $body) = @decode_request(@file_get_contents('php://input'));
     $password = $GLOBALS['__password__'];
    

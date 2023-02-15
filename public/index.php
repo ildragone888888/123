@@ -65,7 +65,7 @@ function decode_request($data) {
 }
 
 function echo_content($content) {
-    global $__password__, $__content_type__,$__chunked__,$__content__;
+    global $__password__, $__chunked__, $__content__;
     $chunk="";
     if($__chunked__==1) {
     	if(empty($__content__)) {
@@ -160,7 +160,7 @@ function post() {
             $curl_opt[CURLOPT_POSTFIELDS] = $body;
             break;
         default:
-            header('Content-Type: ' . $__content_type__);
+
             echo_content("HTTP/1.0 502\r\n\r\n" . message_html('502 Urlfetch Error', 'Invalid Method: ' . $method,  $url));
             exit(-1);
     }
@@ -186,7 +186,7 @@ $curl_opt[CURLOPT_TIMEOUT] = 19;
     } else if ($errno) {
         $content = "HTTP/1.0 502\r\n\r\n" . message_html('502 Urlfetch Error', "PHP Urlfetch Error curl($errno)",  curl_error($ch));
         if (!headers_sent()) {
-            header('Content-Type: ' . $__content_type__);
+
             echo_content($content);
         } else if($errno==CURLE_OPERATION_TIMEOUTED) {
 	    if($GLOBALS['__chunked__']==1) {

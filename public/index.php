@@ -97,11 +97,9 @@ function echo_content($content) {
     	        $chunk=$content;
     }
     //
-    if ($__content_type__ == 'image/gif') {
+   
         $chunk = $chunk ^ str_repeat($__password__[0], strlen($chunk));
-    } else {
-        $chunk = $chunk;
-    }
+   
     echo $chunk;
 }
 

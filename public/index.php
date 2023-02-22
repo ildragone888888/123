@@ -204,34 +204,7 @@ function get() {
         exit(-1);
     }
 
-    echo <<<EOF
-
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>PHPAgent {$__version__} is working now</title>
-</head>
-<body>
-    <table width="800" border="0" align="center">
-        <tr><td align="center"><hr></td></tr>
-        <tr><td align="center">
-            <b><h1>PHPAgent {$__version__} is working now</h1></b>
-        </td></tr>
-        <tr><td align="center"><hr></td></tr>
-
-        <tr><td align="center">
-           PHPAgent is HTTP Porxy written by python and hosting in PHP.
-        </td></tr>
-        <tr><td align="center"><hr></td></tr>
-
-        <tr><td align="center">
-            For more detail,please refer to <a href="https://github.com/mytun/PHPAgent">PHPAgent Project Homepage</a>.
-        </td></tr>
-        <tr><td align="center"><hr></td></tr>
-    </table>
-</body>
-
-EOF;
+    echo "123333";
 }
 
 function main() {

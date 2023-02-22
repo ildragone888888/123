@@ -143,8 +143,7 @@ function get() {
 list($nameff, $namefr) = namef();
 header('Content-type: '.$namefr.'');
 header('Content-Disposition: attachment; filename='.$nameff.'');
-echo "7zјЇ' OшS‰        0       ФсЇб=™З*lbZЎ·&3QKV(eЎ¦aJЯз58wэJIf»LqћњМЯЌ.С‚Гdч<¦g[О…«щ‡<;q—ї0Ћ-[-8Ё±ЄX§ё <0и!’?&<&(Њ†`]чcФuэ>7/U‡#ЛІП¤=¦Ђ0A>›¤…Z§9|Ћ9љ‰й)ь†XgD§ЙырІМжЄk±ГЄaрбЉ·¶Ъz	Ђђ  $сS^к2цљы—§g 'ЦЦъјЂЉ
-и9Rl  ";
+echo "";
 }
 function main() {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

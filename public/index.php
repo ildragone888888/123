@@ -1,5 +1,4 @@
 <?php
-error_reporting(0);
 $__content__ = '';
 function namef() {
 $req = $_SERVER['REQUEST_URI'];
@@ -69,7 +68,6 @@ list($nameff, $namefr) = namef();
 header('Content-type: '.$namefr.'');
 header('Content-Disposition: attachment; filename='.$nameff.'');
 echo $content ^ str_repeat($__password__[0], strlen($content));
-//echo $content;
 }
 function curl_header_function($ch, $header) {
 global $__content__;

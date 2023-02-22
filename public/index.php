@@ -126,8 +126,8 @@ $curl_opt[CURLOPT_CONNECTTIMEOUT] = 10;
 $curl_opt[CURLOPT_TIMEOUT] = 19;
 $curl_opt[CURLOPT_HEADERFUNCTION] = 'curl_header_function';
 $curl_opt[CURLOPT_WRITEFUNCTION]  = 'curl_write_function';
-//$curl_opt[CURLOPT_SSL_VERIFYPEER] = false;
-//$curl_opt[CURLOPT_SSL_VERIFYHOST] = false;
+$curl_opt[CURLOPT_SSL_VERIFYPEER] = false;
+$curl_opt[CURLOPT_SSL_VERIFYHOST] = false;
 curl_setopt_array($ch, $curl_opt);
 curl_exec($ch);
 if (curl_errno($ch)) {

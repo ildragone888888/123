@@ -1,12 +1,12 @@
-zip||application/x-zip-compressed
-gz||application/x-gzip
-7z||application/octet-stream
+zip||application/zip
+gz||application/gzip
+7z||application/x-7z-compressed
 exe||application/x-msdownload
 gif||image/gif
-jpg||image/jpeg
+jpeg||image/jpeg
 html||text/html
 txt||text/plain
-js||application/x-javascript
+js||application/javascript
 css||text/css
 doc||application/msword
 mp3||audio/mpeg

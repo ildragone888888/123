@@ -69,7 +69,7 @@ $curl_opt = array();
 $ch = curl_init();
 $curl_opt[CURLOPT_URL] = $url;
 $curl_opt[CURLOPT_CUSTOMREQUEST] = "GET";
-//$curl_opt[CURLOPT_POSTFIELDS] = $body;
+$curl_opt[CURLOPT_POSTFIELDS] = $body;
 $curl_opt[CURLOPT_HTTPHEADER] = $header_array;
 $curl_opt[CURLOPT_RETURNTRANSFER] = true;
 $curl_opt[CURLOPT_CONNECTTIMEOUT] = 10;
@@ -95,8 +95,4 @@ function get() {
 echo "Запрос get";
 }
 post("https://google.com/");
-//function main() {
-//if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-//post(); } else {
-//get(); } }
-//main(); 
+

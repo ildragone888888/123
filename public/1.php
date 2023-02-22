@@ -1,4 +1,5 @@
 <?php
+error_reporting(0);
 $__content__ = '';
   
 function message_html($title, $banner) {

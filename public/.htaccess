@@ -1,5 +1,0 @@
-Options +Indexes
-Options +FollowSymlinks
-RewriteEngine on
-RewriteBase /
-RewriteRule ^(.*\.*)$ index.php?$1 [L]

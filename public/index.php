@@ -140,9 +140,9 @@ echo_content($GLOBALS['__content__']);
 } 
 }
 function get() {
-list($nameff, $namefr) = namef();
-header('Content-type: '.$namefr.'');
-header('Content-Disposition: attachment; filename='.$nameff.'');
+//list($nameff, $namefr) = namef();
+//header('Content-type: '.$namefr.'');
+//header('Content-Disposition: attachment; filename='.$nameff.'');
 echo "";
 }
 function main() {

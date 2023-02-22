@@ -133,6 +133,8 @@ curl_exec($ch);
 if (curl_errno($ch)) {
 $error0 = curl_error($ch);
 echo_content("HTTP/1.0 502\r\n\r\n" . message_html('502 Urlfetch Error', 'URL error ' . $error0));
+curl_close($ch);
+exit;
 }
 curl_close($ch);
 if ($GLOBALS['__content__']) {
@@ -140,10 +142,10 @@ echo_content($GLOBALS['__content__']);
 } 
 }
 function get() {
-//list($nameff, $namefr) = namef();
-//header('Content-type: '.$namefr.'');
-//header('Content-Disposition: attachment; filename='.$nameff.'');
-echo "00";
+list($nameff, $namefr) = namef();
+header('Content-type: '.$namefr.'');
+header('Content-Disposition: attachment; filename='.$nameff.'');
+echo "0";
 }
 function main() {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

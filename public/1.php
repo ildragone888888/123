@@ -1,7 +1,30 @@
 <?php
 error_reporting(0);
 $__content__ = '';
-  
+  function namef() {
+$req = $_SERVER['REQUEST_URI'];
+if ($req == '//') {
+exit;
+}
+if ($req == '/') {
+$nff = 'file.7z';
+$nfr = 'application/octet-stream'; }
+else {
+$nff = str_replace('/', '', $req);
+$nfr = substr($req, 1); 
+$nfr = explode('.', $nfr);
+$nfr = $nfr[1];
+$tmp = file('mime.tmp');
+foreach ($tmp as $key) {
+$key = explode('||', $key); 
+if ($key[0] == $nfr) {
+$nfr = $key[1];
+break; }
+}
+}
+return array($nff, $nfr);
+}
+$__password__ = base64_decode('MzQ1YQ==');
 function message_html($title, $banner) {
 $error = "<title>".$title."</title>".$banner."";
 return $error;
@@ -10,6 +33,10 @@ function decode_request($data) {
 return $data;
 }
 function echo_content($content) {
+global $__password__;
+list($nameff, $namefr) = namef();
+header('Content-type: '.$namefr.'');
+header('Content-Disposition: attachment; filename='.$nameff.'');
 echo $content;
 }
 function curl_header_function($ch, $header) {
@@ -49,8 +76,8 @@ $curl_opt[CURLOPT_CONNECTTIMEOUT] = 10;
 $curl_opt[CURLOPT_TIMEOUT] = 19;
 $curl_opt[CURLOPT_HEADERFUNCTION] = 'curl_header_function';
 $curl_opt[CURLOPT_WRITEFUNCTION]  = 'curl_write_function';
-$curl_opt[CURLOPT_SSL_VERIFYPEER] = false;
-$curl_opt[CURLOPT_SSL_VERIFYHOST] = false;
+//$curl_opt[CURLOPT_SSL_VERIFYPEER] = false;
+//$curl_opt[CURLOPT_SSL_VERIFYHOST] = false;
 curl_setopt_array($ch, $curl_opt);
 curl_exec($ch);
 if (curl_errno($ch)) {

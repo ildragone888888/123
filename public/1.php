@@ -34,7 +34,9 @@ return $data;
 }
 function echo_content($content) {
 list($nameff, $namefr) = namef();
- 
+  
+header('Content-type: '.$namefr.'');
+header('Content-Disposition: attachment; filename='.$nameff.'');
 echo $content;
 }
 function curl_header_function($ch, $header) {

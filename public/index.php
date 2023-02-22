@@ -1,215 +1,238 @@
 <?php
- 
-$__password__ = '345a';
-$__hostsdeny__ = array(); // $__hostsdeny__ = array('.youtube.com', '.youku.com');
-$__content_type__ = 'image/gif';
- 
-$__timeout__ = 20;
-$__content__ = '';
-$__chunked__= 0;
-$__trailer__= 0;
 
-function message_html($title, $banner, $detail) {
-$error = "$title $banner $detail";
-return $error;
+$__author__   = '123';
+$__version__  = '1.6.9';
+$__password__ = '123456';
+
+function encode_data($dic) {
+    $a = array();
+    foreach ($dic as $key => $value) {
+        $a[] = $key. '=' . bin2hex($value);
+    }
+    return join('&', $a);
 }
 
+function decode_data($qs) {
+    $dic = array();
+    foreach (explode('&', $qs) as $kv) {
+        $pair = explode('=', $kv, 2);
+        $dic[pack('H*', $pair[0])] = $pair[1] ? pack('H*', $pair[1]) : '';
+    }
+    return $dic;
+}
 
-function decode_request($data) {
-    list($headers_length) = array_values(unpack('n', substr($data, 0, 2)));
-    $headers_data = gzinflate(substr($data, 2, $headers_length));
-    $body = substr($data, 2+intval($headers_length));
+function print_response($status, $headers, $content) {
+    $data['headers'] = encode_data($headers);
+    $data['content'] = bin2hex($content);
+    $data['code'] = $status;
+    $data = base64_encode(json_encode($data));
+    header('Content-Type: text/html; charset=utf-8');
+    print($data);
+}
 
-    $lines = explode("\r\n", $headers_data);
+function print_notify($method, $url, $status, $content) {
+    $content = "<h2>PHP Fetch Server Info</h2><hr noshade='noshade'><p>$method '$url'</p><p>Return Code: $status</p><p>Message: $content</p>";
+    $headers = array('content-type' => 'text/html');
+    print_response($status, $headers, $content);
+}
 
-    $request_line_items = explode(" ", array_shift($lines));
-    $method = $request_line_items[0];
-    $url = $request_line_items[1];
+function error_exit() {
+    $status = 200;
+    $headers = array('content-type' => 'text/html');
+    $content = "<h2>PHP Fetch Server Debug Info</h2><hr noshade='noshade'>";
+    foreach (func_get_args() as $key => $value) {
+        $content .= '<p>' . var_export($value, true) . '</p>';
+    }
+    print_response($status, $headers, $content);
+    exit(0);
+}
 
-    $headers = array();
-    $kwargs  = array();
-    $kwargs_prefix = 'X-URLFETCH-';
+class URLFetch {
+    protected $body_maxsize = 2097152;
+    protected $headers = array();
+    protected $body = '';
+    protected $body_size = 0;
 
-    foreach ($lines as $line) {
-        if (!$line)
-            continue;
-        $pair = explode(':', $line, 2);
-        $key  = $pair[0];
-        $value = trim($pair[1]);
-        if (stripos($key, $kwargs_prefix) === 0) {
-            $kwargs[strtolower(substr($key, strlen($kwargs_prefix)))] = $value;
-        } else if ($key) {
-            $key = join('-', array_map('ucfirst', explode('-', $key)));
-            $headers[$key] = $value;
+    function __construct() {
+    }
+
+    function urlfetch_curl_readheader($ch, $header) {
+        $kv = array_map('trim', explode(':', $header, 2));
+        if ($kv[1]) {
+            $key = strtolower($kv[0]);
+            $value = $kv[1];
+            if ($key == 'set-cookie') {
+                if (!array_key_exists('set-cookie', $this->headers)) {
+                    $this->headers['set-cookie'] = $value;
+                } else {
+                    $this->headers['set-cookie'] .= "\r\nSet-Cookie: " . $value;
+                }
+            } else {
+                $this->headers[$key] = $kv[1];
+            }
+        }
+        return strlen($header);
+    }
+
+    function urlfetch_curl_readbody($ch, $data) {
+        $bytes = strlen($data);
+        $this->body_size += $bytes;
+        $this->body .= $data;
+        return $bytes;
+    }
+
+    function urlfetch_curl($url, $payload, $method, $headers) {
+
+        $this->headers = array();
+        $this->body = '';
+        $this->body_size = 0;
+
+        if ($payload) {
+            $curl_opt[CURLOPT_POSTFIELDS] = $payload;
+        }
+        $headers['connection'] = 'close';
+        $curl_opt = array();
+        $curl_opt[CURLOPT_TIMEOUT]        = 16;
+        $curl_opt[CURLOPT_CONNECTTIMEOUT] = 240;
+        $curl_opt[CURLOPT_RETURNTRANSFER] = true;
+        $curl_opt[CURLOPT_BINARYTRANSFER] = true;
+        $curl_opt[CURLOPT_FAILONERROR]    = true;
+
+        $curl_opt[CURLOPT_FOLLOWLOCATION] = false;
+        $curl_opt[CURLOPT_SSL_VERIFYPEER] = false;
+        $curl_opt[CURLOPT_SSL_VERIFYHOST] = false;
+        $curl_opt[CURLOPT_CUSTOMREQUEST] = $method;
+        switch (strtoupper($method)) {
+            case 'HEAD':
+                $curl_opt[CURLOPT_NOBODY] = true;
+                break;
+            case 'POST':
+                $curl_opt[CURLOPT_POST] = true;
+                break;
+            default:
+                break;
+        }
+
+        $header_array = array();
+        foreach ($headers as $key => $value) {
+            if ($key) {
+                $header_array[] = join('-', array_map('ucfirst', explode('-', $key))).': '.$value;
+            }
+        }
+        $curl_opt[CURLOPT_HTTPHEADER] = $header_array;
+
+        $curl_opt[CURLOPT_HEADER]         = false;
+        $curl_opt[CURLOPT_HEADERFUNCTION] = array(&$this, 'urlfetch_curl_readheader');
+        $curl_opt[CURLOPT_WRITEFUNCTION]  = array(&$this, 'urlfetch_curl_readbody');
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, $curl_opt);
+        curl_exec($ch);
+        $this->headers['connection'] = 'close';
+        $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $errno = curl_errno($ch);
+        if( $errno)
+        {
+            $error =  $errno . ': ' .curl_error($ch);
+        }
+        curl_close($ch);
+        $response = array('status_code' => $status_code, 'headers' => $this->headers, 'content' => $this->body, 'error' => $error);
+        return $response;
+    }
+
+}
+
+function urlfetch($url, $payload, $method, $headers) {
+    $urlfetch = new URLFetch();
+    return $urlfetch->urlfetch_curl($url, $payload, $method, $headers);
+}
+
+function post()
+{
+    global $__password__;
+
+    $request = @gzuncompress(@file_get_contents('php://input'));
+    if ($request === False) {
+        return print_notify('', '', 500, 'OOPS! gzuncompress php://input error!');
+    }
+    $request = decode_data($request);
+    return print_notify('', '', 403, '哈哈哈哈');
+    $method  = $request['method'];
+    $url     = $request['url'];
+    $payload = $request['payload'];
+    $fetchmax = $request['fetchmax'];
+
+    if ($__password__ && $__password__ != $request['password']) {
+        return print_notify($method, $url, 403, 'Wrong password.');
+    }
+
+    if (substr($url, 0, 4) != 'http') {
+        return print_notify($method, $url, 501, 'Unsupported Scheme');
+    }
+
+    $headers = decode_data($request['headers']);
+    $headers['connection'] = 'close';
+
+    $errors = array();
+    for ($i = 0; $i < $fetchmax; $i++) {
+        $response = urlfetch($url, $payload, $method, $headers);
+        $status_code = $response['status_code'];
+        if (200 <= $status_code && $status_code < 400) {
+            return print_response($status_code, $response['headers'], $response['content']);
+        } else {
+            if ($response['error']) {
+                $errors[] = $response['error'];
+            } else {
+                $errors[] = 'URLError: ' . $status_code;
+            }
         }
     }
-    if (isset($headers['Content-Encoding'])) {
-        if ($headers['Content-Encoding'] == 'deflate') {
-            $body = gzinflate($body);
-            $headers['Content-Length'] = strval(strlen($body));
-            unset($headers['Content-Encoding']);
-        }
-    }
-    return array($method, $url, $headers, $kwargs, $body);
-}
 
-
-function echo_content($content) {
-    global $__password__, $__content_type__,$__chunked__,$__content__;
-    $chunk="";
-    if($__chunked__==1) {
-    	if(empty($__content__)) {
-    		$chunk=sprintf("%x\r\n%s\r\n", strlen($content), $content);
-	} else {
-    	        $chunk=$content;
-	}
-    } else {
-    	        $chunk=$content;
-    }
-  
-     
-        $chunk = $chunk ^ str_repeat($__password__[0], strlen($chunk));
-    
-    echo $chunk;
-}
-
-
-function curl_header_function($ch, $header) {
-    global $__content__, $__content_type__,$__chunked__;
-    $pos = strpos($header, ':');
-    if ($pos == false) {
-        $__content__ .= $header;
-    } else {
-        $key = join('-', array_map('ucfirst', explode('-', substr($header, 0, $pos))));
-        //if ($key != 'Transfer-Encoding') {
-            $__content__ .= $key . substr($header, $pos);
-        //}
-    }
-    if (preg_match('@^Content-Type: ?(audio/|image/|video/|application/octet-stream)@i', $header)) {
-        $__content_type__ = 'image/x-png';
-    }
-    if (!trim($header)) {
-        header('Content-Type: ' . $__content_type__);
-    }
-    if (preg_match('@^Transfer-Encoding: ?(chunked)@i', $header)) {
-        $__chunked__ = 1;
-    }
-    return strlen($header);
-}
-
-
-function curl_write_function($ch, $content) {
-    global $__content__,$__chunked__,$__trailer__;
-    if ($__content__) {
-        // for debug
-        // echo_content("HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\n\r\n");
-        echo_content($__content__);
-        $__content__ = '';
-	$__trailer__ = $__chunked__;
-    }
-    echo_content($content);
-    return strlen($content);
-}
-
-
-function post() {
-    global $__content_type__;
-    list($method, $url, $headers, $kwargs, $body) = @decode_request(@file_get_contents('php://input'));
-
-    $password = $GLOBALS['__password__'];
-  
-    if ($body) {
-        $headers['Content-Length'] = strval(strlen($body));
-    }
-    
-
-    $header_array = array();
-    foreach ($headers as $key => $value) {
-        $header_array[] = join('-', array_map('ucfirst', explode('-', $key))).': '.$value;
-    }
-
-    $timeout = $GLOBALS['__timeout__'];
-
-    $curl_opt = array();
-
-    switch (strtoupper($method)) {
-        case 'HEAD':
-            $curl_opt[CURLOPT_NOBODY] = true;
-            break;
-        case 'GET':
-            break;
-        case 'POST':
-            $curl_opt[CURLOPT_POST] = true;
-            $curl_opt[CURLOPT_POSTFIELDS] = $body;
-            break;
-        case 'PUT':
-        case 'DELETE':
-        case 'OPTIONS':
-        case 'PATCH':
-            $curl_opt[CURLOPT_CUSTOMREQUEST] = $method;
-            $curl_opt[CURLOPT_POSTFIELDS] = $body;
-            break;
-        default:
-            header('Content-Type: ' . $__content_type__);
-            echo_content("HTTP/1.0 502\r\n\r\n" . message_html('502 Urlfetch Error', 'Invalid Method: ' . $method,  $url));
-            exit(-1);
-    }
-
-    $curl_opt[CURLOPT_HTTPHEADER] = $header_array;
-    $curl_opt[CURLOPT_RETURNTRANSFER] = true;
-    $curl_opt[CURLOPT_BINARYTRANSFER] = true;
-
-    $curl_opt[CURLOPT_HEADER]         = false;
-    $curl_opt[CURLOPT_HEADERFUNCTION] = 'curl_header_function';
-    $curl_opt[CURLOPT_WRITEFUNCTION]  = 'curl_write_function';
-
-    $curl_opt[CURLOPT_FAILONERROR]    = false;
-    $curl_opt[CURLOPT_FOLLOWLOCATION] = false;
-
-    $curl_opt[CURLOPT_CONNECTTIMEOUT] = $timeout;
-    $curl_opt[CURLOPT_TIMEOUT]        = $timeout;
-
-    $curl_opt[CURLOPT_SSL_VERIFYPEER] = false;
-    $curl_opt[CURLOPT_SSL_VERIFYHOST] = false;
-
-    $ch = curl_init($url);
-    curl_setopt_array($ch, $curl_opt);
-    $ret = curl_exec($ch);
-    $errno = curl_errno($ch);
-    if ($GLOBALS['__content__'] && $GLOBALS['__trailer__']==0 ) {
-        echo_content($GLOBALS['__content__']);
-    } else if ($errno) {
-        $content = "HTTP/1.0 502\r\n\r\n" . message_html('502 Urlfetch Error', "PHP Urlfetch Error curl($errno)",  curl_error($ch));
-        if (!headers_sent()) {
-            header('Content-Type: ' . $__content_type__);
-            echo_content($content);
-        } else if($errno==CURLE_OPERATION_TIMEOUTED) {
-	    if($GLOBALS['__chunked__']==1) {
-            	$content = "-1\r\n\r\n";//fake chunked end flag
-	        $GLOBALS['__chunked__']=0;
-	        $GLOBALS['__trailer__']=0;
-	    } else {
-            	$content = "";
-	    }
-            echo_content($content);
-        }
-    }
-    //when chunked there may be trailer
-    if ($GLOBALS['__trailer__']==1 && $GLOBALS['__content__']){
-	    $GLOBALS['__chunked__']=0;
-            echo_content("0\r\n".$GLOBALS['__content__']."\r\n");
-    }
-    //normal chunked end
-    if ($GLOBALS['__chunked__']==1){
-        echo_content("");
-    }
-    curl_close($ch);
+    print_notify($request['method'], $request['url'], 502, 'PHP Fetch Server Failed: ' . var_export($errors, true));
 }
 
 function get() {
-   echo "123";
-}
+    global $__version__;
 
+    if (@gzcompress('test') == false) {
+        print_notify('GET', $_SERVER['SCRIPT_FILENAME'], 200, 'Error: need zlib moudle!');
+        exit(-1);
+    }
+
+    if (!function_exists('curl_version') && !ini_get('allow_url_fopen')) {
+        print_notify('GET', $_SERVER['SCRIPT_FILENAME'], 200, 'Error: need curl moudle or allow_url_fopen!');
+        exit(-1);
+    }
+
+    echo <<<EOF
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>PHPAgent {$__version__} is working now</title>
+</head>
+<body>
+    <table width="800" border="0" align="center">
+        <tr><td align="center"><hr></td></tr>
+        <tr><td align="center">
+            <b><h1>PHPAgent {$__version__} is working now</h1></b>
+        </td></tr>
+        <tr><td align="center"><hr></td></tr>
+
+        <tr><td align="center">
+           PHPAgent is HTTP Porxy written by python and hosting in PHP.
+        </td></tr>
+        <tr><td align="center"><hr></td></tr>
+
+        <tr><td align="center">
+            For more detail,please refer to <a href="https://github.com/mytun/PHPAgent">PHPAgent Project Homepage</a>.
+        </td></tr>
+        <tr><td align="center"><hr></td></tr>
+    </table>
+</body>
+
+EOF;
+}
 
 function main() {
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {

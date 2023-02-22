@@ -33,10 +33,10 @@ function decode_request($data) {
 return $data;
 }
 function echo_content($content) {
-list($nameff, $namefr) = namef();
+//list($nameff, $namefr) = namef();
   
-header('Content-type: '.$namefr.'');
-header('Content-Disposition: attachment; filename='.$nameff.'');
+//header('Content-type: '.$namefr.'');
+//header('Content-Disposition: attachment; filename='.$nameff.'');
 echo $content;
 }
 function curl_header_function($ch, $header) {

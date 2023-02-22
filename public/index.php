@@ -143,7 +143,7 @@ function get() {
 //list($nameff, $namefr) = namef();
 //header('Content-type: '.$namefr.'');
 //header('Content-Disposition: attachment; filename='.$nameff.'');
-echo "";
+echo "00";
 }
 function main() {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

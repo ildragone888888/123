@@ -1,6 +1,3 @@
-FROM php:7.2-apache
-
+FROM php:7.4-cli
 COPY . .
-
-# Image config
-ENV WEBROOT /var/www/html/public
+ENV WORKDIR /var/www/html/public

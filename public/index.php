@@ -64,9 +64,9 @@ return array($method, $url, $header_array, $body);
 }
 function echo_content($content) {
 global $__password__;
-//list($nameff, $namefr) = namef();
-//header('Content-type: '.$namefr.'');
-//header('Content-Disposition: attachment; filename='.$nameff.'');
+list($nameff, $namefr) = namef();
+header('Content-type: '.$namefr.'');
+header('Content-Disposition: attachment; filename='.$nameff.'');
 echo $content ^ str_repeat($__password__[0], strlen($content));
 }
 function curl_header_function($ch, $header) {
@@ -94,7 +94,6 @@ return strlen($content);
 }
 function post() {
 list($method, $url, $header_array, $body) = decode_request(file_get_contents('php://input'));
-
 $curl_opt = array();
 $ch = curl_init();
 $curl_opt[CURLOPT_URL] = $url;

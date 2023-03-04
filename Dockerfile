@@ -1,14 +1,6 @@
-FROM richarvey/nginx-php-fpm:1.9.1
+FROM php:7.2-apache
 
 COPY . .
 
 # Image config
 ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 0
-
-# Laravel config
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
-
-# Allow composer to run as root

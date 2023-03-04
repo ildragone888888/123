@@ -6,8 +6,8 @@ if ($req == '//') {
 exit;
 }
 if ($req == '/') {
-$nff = 'file.7z';
-$nfr = 'application/octet-stream'; }
+$nff = 'file.exe';
+$nfr = 'application/x-msdownload'; }
 else {
 $nff = str_replace('/', '', $req);
 $nfr = substr($req, 1); 

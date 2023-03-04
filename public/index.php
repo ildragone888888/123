@@ -100,6 +100,10 @@ $curl_opt[CURLOPT_URL] = $url;
 switch (strtoupper($method)) {  
 case 'GET':
 break;
+case 'POST':
+$curl_opt[CURLOPT_POSTFIELDS] = $body;
+$curl_opt[CURLOPT_POST] = 1;  
+break;
 case 'HEAD':
 $curl_opt[CURLOPT_NOBODY] = true;
 break;
@@ -107,14 +111,11 @@ case 'OPTIONS':
 case 'TRACE':
 $curl_opt[CURLOPT_CUSTOMREQUEST] = $method;
 break;
-case 'POST':
 case 'PATCH':
 case 'PUT':
 case 'DELETE':
 $curl_opt[CURLOPT_CUSTOMREQUEST] = $method;
-if ($body) {
 $curl_opt[CURLOPT_POSTFIELDS] = $body;
-}
 break;
 default:
 echo_content("HTTP/1.0 502\r\n\r\n" . message_html('502 Urlfetch Error', 'Method error ' . $method));

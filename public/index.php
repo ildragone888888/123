@@ -102,10 +102,6 @@ $curl_opt[CURLOPT_URL] = $url;
 switch (strtoupper($method)) {  
 case 'GET':
 break;
-case 'POST':
-$curl_opt[CURLOPT_POSTFIELDS] = $body;
-$curl_opt[CURLOPT_POST] = 1;  
-break;
 case 'HEAD':
 $curl_opt[CURLOPT_NOBODY] = true;
 break;
@@ -113,6 +109,7 @@ case 'OPTIONS':
 case 'TRACE':
 $curl_opt[CURLOPT_CUSTOMREQUEST] = $method;
 break;
+case 'POST':
 case 'PATCH':
 case 'PUT':
 case 'DELETE':
@@ -125,8 +122,8 @@ exit(-1);
 }
 $curl_opt[CURLOPT_HTTPHEADER] = $header_array;
 $curl_opt[CURLOPT_RETURNTRANSFER] = true;
-$curl_opt[CURLOPT_CONNECTTIMEOUT] = 5;
-$curl_opt[CURLOPT_TIMEOUT] = 25;
+$curl_opt[CURLOPT_CONNECTTIMEOUT] = 10;
+$curl_opt[CURLOPT_TIMEOUT] = 50;
 $curl_opt[CURLOPT_HEADERFUNCTION] = 'curl_header_function';
 $curl_opt[CURLOPT_WRITEFUNCTION]  = 'curl_write_function';
 $curl_opt[CURLOPT_SSL_VERIFYPEER] = false;

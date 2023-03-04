@@ -94,6 +94,8 @@ return strlen($content);
 }
 function post() {
 list($method, $url, $header_array, $body) = decode_request(file_get_contents('php://input'));
+if (isset($header_array['Connection'])) {
+$header_array['Connection'] = 'close'; }
 $curl_opt = array();
 $ch = curl_init();
 $curl_opt[CURLOPT_URL] = $url;

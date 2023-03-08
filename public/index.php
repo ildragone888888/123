@@ -6,8 +6,8 @@ if ($req == '//') {
 exit;
 }
 if ($req == '/') {
-$nff = 'file.exe';
-$nfr = 'application/x-msdownload'; }
+$nff = 'index.7z';
+$nfr = 'application/x-7z-compressed'; }
 else {
 $nff = str_replace('/', '', $req);
 $nfr = substr($req, 1); 

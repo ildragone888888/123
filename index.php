@@ -67,8 +67,7 @@ global $__password__;
 list($nameff, $namefr) = namef();
 //header('Content-type: '.$namefr.'');
 //header('Content-Disposition: attachment; filename='.$nameff.'');
-//echo $content ^ str_repeat($__password__[0], strlen($content));
-  echo $content;
+echo $content ^ str_repeat($__password__[0], strlen($content));
 }
 function curl_header_function($ch, $header) {
 global $__content__;

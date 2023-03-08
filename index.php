@@ -56,7 +56,7 @@ $header_array[] = join('-', array_map('ucfirst', explode('-', $key))).': '.$valu
 }
 $body = substr($data, 2+$headers_length);
 if ($body) { 
-$body  = $body ^ str_repeat($__password__, strlen($body));
+//$body  = $body ^ str_repeat($__password__, strlen($body));
 $body = gzinflate($body);
 }
 $__password__ = $kwargs['password'];

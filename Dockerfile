@@ -1,3 +1,3 @@
-FROM php:8.1-apache
+FROM php:8.0-apache
 COPY . .
-WORKDIR /var/www/html/
+WORKDIR /var/www/html
